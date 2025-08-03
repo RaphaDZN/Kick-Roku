@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<component name="PlayerScene" extends="Scene">
+
+    <script type="text/brightscript" uri="pkg:/components/PlayerScene.brs" />
+    <script type="text/brightscript" uri="pkg:/source/Websocket.brs" />
+
+    <interface>
+        <field id="streamerSlug" type="string" />
+    </interface>
+    <children>
+        <Video 
+            id="player"
+            width="900"
+            height="720"
+            translation="[0,0]"
+            visible="true" />
+        
+        <Rectangle
+            id="chatBackground"
+            color="#1a1a1a"
+            width="380"
+            height="720"
+            translation="[900, 0]" />
+
+        <Label
+            id="chatTitle"
+            text="Chat ao Vivo"
+            width="380"
+            horizAlign="center"
+            translation="[900, 10]" />
+
+        <MarkupList
+            id="chatList"
+            itemComponentName="Label"
+            itemSize="[360, 30]"
+            translation="[910, 50]"
+            width="360"
+            height="660"
+            numRows="22"
+        />
+    </children>
+</component>

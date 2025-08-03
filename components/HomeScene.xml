@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<component name="HomeScene" extends="Scene">
+
+    <script type="text/brightscript" uri="pkg:/components/HomeScene.brs" />
+    
+    <children>
+        <Label 
+            text="VerdeStream"
+            horizAlign="center"
+            translation="[0, 20]"
+            width="1280" />
+        
+        <Button
+            id="searchButton"
+            text="Buscar Canal"
+            translation="[540, 80]"
+            minwidth="200"
+            
+        />
+
+        <MarkupGrid 
+            id="streamsGrid"
+            translation="[90, 150]"
+            itemComponentName="GridItem"
+            numColumns="4"
+            itemSpacing="[20,20]" />
+    </children>
+</component>

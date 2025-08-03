@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<component name="ApiTask" extends="Task">
+    <interface>
+        <field id="result" type="assocarray" />
+    </interface>
+
+    <script type="text/brightscript">
+    <![CDATA[
+        sub init()
+            m.accessToken = invalid
+            m.top.functionName = "run"
+        end sub
+
+        function run()
+            if m.accessToken = invalid
+                m.accessToken = getAppAccessToken()
+            end if
+
+            if m.accessToken <> invalid
+                apiResult = getCategoryData()
+                m.top.result = apiResult
+            else
+                m.top.result = invalid
+            end if
+        end function
+
+        function getAppAccessToken() as object
+            ' ===============================================================
+            ' ▼▼▼    CONFIRA SUAS CREDENCIAIS COM MUITA ATENÇÃO    ▼▼▼
+            ' ===============================================================
+            CLIENT_ID = "PUT YOUR CREDENTIALS HERE"
+            CLIENT_SECRET = "PUT YOUR CREDENTIALS HERE"
+            ' ===============================================================
+            
+            url = "https://kick.com/api/v2/oauth/token"
+            
+            ' A PAPELADA COMPLETA, INCLUINDO O CAMPO "SCOPE"
+            jsonBody = {
+                "grant_type": "client_credentials",
+                "client_id": CLIENT_ID,
+                "client_secret": CLIENT_SECRET,
+                "scope": ""
+            }
+            body = FormatJson(jsonBody)
+
+            transfer = CreateObject("roUrlTransfer")
+            transfer.SetCertificatesFile("common:/certs/ca-bundle.crt")
+            transfer.InitClientCertificates()
+            transfer.SetRequest("POST")
+            transfer.addHeader("Content-Type", "application/json")
+            transfer.addHeader("Accept", "application/json")
+            transfer.SetUrl(url)
+            
+            response = transfer.PostFromString(body)
+
+            if type(response) <> "roString" or response = ""
+                print "[VerdeStream DEBUG] Falha ao obter token. O servidor respondeu com o código de erro: "; response
+                return invalid
+            end if
+            
+            json = ParseJson(response)
+            if json = invalid or json.access_token = invalid
+                print "[VerdeStream DEBUG] Falha ao parsear JSON do token ou 'access_token' não encontrado. Resposta: "; response
+                return invalid
+            end if
+            
+            print "[VerdeStream DEBUG] Crachá (Access Token) recebido com sucesso!"
+            return json.access_token
+        end function
+
+        function getApiData(endpoint as string) as object
+            url = "https://api.kick.com/api/v2/" + endpoint
+            
+            transfer = CreateObject("roUrlTransfer")
+            transfer.SetCertificatesFile("common:/certs/ca-bundle.crt")
+            transfer.InitClientCertificates()
+
+            transfer.addHeader("Authorization", "Bearer " + m.accessToken)
+            transfer.addHeader("Accept", "application/json")
+            
+            transfer.SetUrl(url)
+            
+            responseString = transfer.GetToString()
+            if responseString = "" then return invalid
+            
+            json = ParseJson(responseString)
+            if json = invalid then return invalid
+            
+            return json
+        end function
+
+        function getCategoryData() as object
+            return getApiData("categories")
+        end function
+    ]]>
+    </script>
+</component>
